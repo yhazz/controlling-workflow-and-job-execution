@@ -69,9 +69,21 @@ jobs:
           path: dist
   deploy:
     needs: build
+    # utilisation du workflow reusable qui est un workflow réutilisable
     uses: ./.github/workflows/reusable.yml
     with:
+      # input passé au workflow réutilisable
       artifact-name: dist-files
+    # secrets passés au workflow réutilisable  
+    # secrets:
+    #  some-secret: ${{ secrets.some-secret }}
+  print-deploy-result:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print deploy output
+        # récupère l'output renvoyé par le workflow réutilisable reusable.yml
+        run: echo "${{ needs.deploy.outputs.result }}"
   report:
     needs: [lint, deploy]
     if: failure()

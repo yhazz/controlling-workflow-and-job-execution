@@ -1,14 +1,28 @@
 name: Reusable Deploy
 on: 
+    # déclare le workflow appelable/réutilisable par d'autres workflows
     workflow_call:
+        # déclaration des inputs attendus pour le workflow
         inputs:
             artifact-name:
                 description: The name of the deployable artifact files
                 required: false
                 default: dist
                 type: string
+        # déclaration des secrets attendus pour le workflow
+        secrets:
+          some-secret:
+            required: false
+        # déclaration des outputs renvoyés par le workflow
+        outputs:
+          result: 
+            description: The result of the deployment operation
+            value: ${{ jobs.deploy.outputs.outcome }}
 jobs:
     deploy:
+        outputs:
+            # outcome est utilisé dans le cas d'un workflow réutilisable
+            outcome: ${{ steps.set-result.outputs.step-result }}
         runs-on: ubuntu-latest
         steps:
             - name: Get Code
@@ -19,3 +33,6 @@ jobs:
               run: ls
             - name: Output information
               run: echo "Deploying & uploading ..."
+            - name: Set output
+              id: set-result
+              run: echo "step-result=success" >> $GITHUB_OUTPUT
